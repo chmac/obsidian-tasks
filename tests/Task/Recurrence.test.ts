@@ -266,7 +266,7 @@ describe('Recurrence - with removeScheduledDateOnRecurrence', () => {
         expect(next!.scheduledDate).not.toBeNull();
     });
 
-    describe.only('dropScheduledDate and when done', () => {
+    describe('dropScheduledDate and when done', () => {
         beforeEach(() => {
             jest.useFakeTimers();
             jest.setSystemTime(new Date('2022-01-10'));
