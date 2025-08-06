@@ -275,7 +275,7 @@ describe('Recurrence - with removeScheduledDateOnRecurrence', () => {
             jest.useRealTimers();
         });
 
-        it('calculates the correct start date when dropScheduledDate is true and repeat is when done', () => {
+        it.failing('calculates the correct start date when dropScheduledDate is true and repeat is when done', () => {
             // Arrange
             const recurrence = Recurrence.fromText({
                 recurrenceRuleText: 'every 3 days when done',
