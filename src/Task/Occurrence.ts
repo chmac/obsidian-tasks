@@ -55,12 +55,12 @@ export class Occurrence {
             return window.moment(this.dueDate);
         }
 
-        if (this.scheduledDate) {
-            return window.moment(this.scheduledDate);
-        }
-
         if (this.startDate) {
             return window.moment(this.startDate);
+        }
+
+        if (this.scheduledDate) {
+            return window.moment(this.scheduledDate);
         }
 
         return null;
