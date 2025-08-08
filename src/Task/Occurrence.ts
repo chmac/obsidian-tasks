@@ -50,17 +50,21 @@ export class Occurrence {
      *
      * @private
      */
-    private getReferenceDate(): Moment | null {
+    private getReferenceDate(removeScheduledDate = false): Moment | null {
         if (this.dueDate) {
             return window.moment(this.dueDate);
         }
 
-        if (this.scheduledDate) {
+        if (!removeScheduledDate && this.scheduledDate) {
             return window.moment(this.scheduledDate);
         }
 
         if (this.startDate) {
             return window.moment(this.startDate);
+        }
+
+        if (this.scheduledDate) {
+            return window.moment(this.scheduledDate);
         }
 
         return null;
@@ -105,11 +109,11 @@ export class Occurrence {
         const canRemoveScheduledDate = hasStartDate || hasDueDate;
         const shouldRemoveScheduledDate = removeScheduledDate && canRemoveScheduledDate;
 
-        const startDate = this.nextOccurrenceDate(this.startDate, nextReferenceDate);
+        const startDate = this.nextOccurrenceDate(this.startDate, nextReferenceDate, removeScheduledDate);
         const scheduledDate = shouldRemoveScheduledDate
             ? null
-            : this.nextOccurrenceDate(this.scheduledDate, nextReferenceDate);
-        const dueDate = this.nextOccurrenceDate(this.dueDate, nextReferenceDate);
+            : this.nextOccurrenceDate(this.scheduledDate, nextReferenceDate, removeScheduledDate);
+        const dueDate = this.nextOccurrenceDate(this.dueDate, nextReferenceDate, removeScheduledDate);
 
         return new Occurrence({
             startDate,
@@ -126,11 +130,21 @@ export class Occurrence {
      * @param currentOccurrenceDate start/scheduled/due date
      * @private
      */
-    private nextOccurrenceDate(currentOccurrenceDate: Moment | null, nextReferenceDate: Date): Moment | null {
+    private nextOccurrenceDate(
+        currentOccurrenceDate: Moment | null,
+        nextReferenceDate: Date,
+        removeScheduledDate = false,
+    ): Moment | null {
         if (currentOccurrenceDate === null) {
             return null;
         }
-        const originalDifference = window.moment.duration(currentOccurrenceDate.diff(this.referenceDate));
+        // We need to use `getReferenceDate()` and not `this.referenceDate` here
+        // because `this.referenceDate` is chosen without any knowledge of the
+        // `removeScheduledDate` flag, and in the case where only a scheduled
+        // and start dates exist, the recurrence would be calculated from the
+        // scheduled date even when the `removeScheduledDate` flag is true.
+        const referenceDate = this.getReferenceDate(removeScheduledDate);
+        const originalDifference = window.moment.duration(currentOccurrenceDate.diff(referenceDate));
 
         // Cloning so that original won't be manipulated:
         const nextOccurrence = window.moment(nextReferenceDate);
