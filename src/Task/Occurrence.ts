@@ -1,4 +1,5 @@
 import type { Moment } from 'moment/moment';
+import { getSettings } from 'Config/Settings';
 import { compareByDate } from '../DateTime/DateTools';
 
 /**
@@ -51,16 +52,22 @@ export class Occurrence {
      * @private
      */
     private getReferenceDate(): Moment | null {
+        const { removeScheduledDateOnRecurrence } = getSettings();
+
         if (this.dueDate) {
             return window.moment(this.dueDate);
         }
 
-        if (this.scheduledDate) {
+        if (!removeScheduledDateOnRecurrence && this.scheduledDate) {
             return window.moment(this.scheduledDate);
         }
 
         if (this.startDate) {
             return window.moment(this.startDate);
+        }
+
+        if (this.scheduledDate) {
+            return window.moment(this.scheduledDate);
         }
 
         return null;
